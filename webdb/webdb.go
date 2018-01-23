@@ -406,6 +406,7 @@ type NodeAncestor struct {
 type Node struct {
   Identifiers      []Identifier
   NodeAncestors    []NodeAncestor
+  ScientificNames  []ScientificName
   ID               uint
   ResourceID       uint
   Resource         Resource

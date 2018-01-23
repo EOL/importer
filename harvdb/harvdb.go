@@ -1,6 +1,9 @@
 package importer
 
-import "time"
+import (
+  "strings"
+  "time"
+)
 
 type Agent struct {
   ID         uint
@@ -731,6 +734,34 @@ type ScientificName struct {
   UpdatedAt                 time.Time
   ResourcePk                string
   ScientificNamesReferences []ScientificNamesReference
+}
+
+func (name ScientificName) AttributionHTML (attribution string) {
+  if harvNode.ResourceID == 1 {
+    attribution = fmt.Sprintf("Reference taxon: %v",
+      strings.Join([]string{scientificNameLink, accordingTo, viaStatement}, " "))
+  }
+  return attribution
+}
+
+func (name ScientificName) scientificNameLink (string) {
+  if strings.TrimSpace(name.Node.FurtherInformationUrl) > 0 {
+    return "<a href='"+name.Node.FurtherInformationUrl+"'>"+name.Normalized+"</a>"
+  }
+  return nil
+}
+
+func (name ScientificName) accordingTo (string) {
+  if name.Dataset == nil { return nil }
+  return "according to <a href='"+name.Dataset.Link+"'>"+name.Dataset.Name+"</a>"
+}
+
+func (name ScientificName) viaStatement (string) {
+  if name.Dataset != nil && !(strings.TrimSpace(name.Dataset.Pulisher) == 0 && strings.TrimSpace(name.Dataset.supplier) == 0) {
+    return "via #{dataset.publisher}#{'/' if !dataset.publisher.blank? && !dataset.supplier.blank?}#{dataset.supplier}"
+  }
+  if strings.TrimSpace(name.Publication) == 0 { return nil }
+  return "via "+name.Publication
 }
 
 type ScientificNamesReference struct {
